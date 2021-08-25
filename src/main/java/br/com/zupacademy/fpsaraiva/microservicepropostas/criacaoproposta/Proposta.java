@@ -56,4 +56,8 @@ public class Proposta {
         return id;
     }
 
+    public boolean possuiDocumentoCadastrado(PropostaRepository propostaRepository) {
+        return propostaRepository.existsByDocumento(documento);
+    }
+
 }
