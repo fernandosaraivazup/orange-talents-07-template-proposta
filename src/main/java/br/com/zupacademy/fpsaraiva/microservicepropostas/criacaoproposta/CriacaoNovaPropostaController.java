@@ -1,6 +1,8 @@
 package br.com.zupacademy.fpsaraiva.microservicepropostas.criacaoproposta;
 
 import br.com.zupacademy.fpsaraiva.microservicepropostas.compartilhado.excessoes.ApiErroException;
+import br.com.zupacademy.fpsaraiva.microservicepropostas.consultadadossolicitante.AnaliseFinanceiraClient;
+import feign.FeignException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,9 @@ public class CriacaoNovaPropostaController {
     @Autowired
     private PropostaRepository propostaRepository;
 
+    @Autowired
+    private AnaliseFinanceiraClient analiseFinanceiraClient;
+
     @PostMapping("/propostas")
     public ResponseEntity<?> criarProposta(@RequestBody @Valid NovaPropostaRequest novaPropostaRequest,
                                            UriComponentsBuilder uriComponentsBuilder) {
@@ -26,6 +31,7 @@ public class CriacaoNovaPropostaController {
             throw new ApiErroException(HttpStatus.UNPROCESSABLE_ENTITY, "Não é possível criar mais de uma proposta com o mesmo documento.");
         }
 
+        novaProposta.analisaRestricoesFinanceirasSolicitanteProposta(analiseFinanceiraClient, novaProposta);
         propostaRepository.save(novaProposta);
 
         return ResponseEntity.created(uriComponentsBuilder
