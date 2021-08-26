@@ -2,7 +2,8 @@ package br.com.zupacademy.fpsaraiva.microservicepropostas.criacaoproposta;
 
 import br.com.zupacademy.fpsaraiva.microservicepropostas.compartilhado.excessoes.ApiErroException;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.consultadadossolicitante.AnaliseFinanceiraClient;
-import feign.FeignException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,8 @@ public class CriacaoNovaPropostaController {
     @Autowired
     private AnaliseFinanceiraClient analiseFinanceiraClient;
 
+    private final Logger logger = LoggerFactory.getLogger(Proposta.class);
+
     @PostMapping("/propostas")
     public ResponseEntity<?> criarProposta(@RequestBody @Valid NovaPropostaRequest novaPropostaRequest,
                                            UriComponentsBuilder uriComponentsBuilder) {
@@ -33,6 +36,8 @@ public class CriacaoNovaPropostaController {
 
         novaProposta.analisaRestricoesFinanceirasSolicitanteProposta(analiseFinanceiraClient, novaProposta);
         propostaRepository.save(novaProposta);
+
+        logger.info("Proposta 'id={}' CRIADA com sucesso!", novaProposta.getId());
 
         return ResponseEntity.created(uriComponentsBuilder
                 .path("/propostas/{id}")

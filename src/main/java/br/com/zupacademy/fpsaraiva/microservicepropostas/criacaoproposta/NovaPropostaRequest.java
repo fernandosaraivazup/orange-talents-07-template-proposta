@@ -7,8 +7,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public class NovaPropostaRequest {
+
+    @NotNull
+    private UUID id;
 
     @NotBlank
     @ValidDocument
@@ -29,6 +33,7 @@ public class NovaPropostaRequest {
     private BigDecimal salario;
 
     public NovaPropostaRequest(String documento, String email, String nome, String endereco, BigDecimal salario) {
+        this.id = UUID.randomUUID();
         this.documento = documento;
         this.email = email;
         this.nome = nome;
@@ -37,7 +42,7 @@ public class NovaPropostaRequest {
     }
 
     public Proposta toModel() {
-        return new Proposta(documento, email, nome, endereco, salario);
+        return new Proposta(id, documento, email, nome, endereco, salario);
     }
 
 }

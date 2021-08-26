@@ -7,6 +7,8 @@ import br.com.zupacademy.fpsaraiva.microservicepropostas.consultadadossolicitant
 import br.com.zupacademy.fpsaraiva.microservicepropostas.consultadadossolicitante.StatusProposta;
 import feign.FeignException;
 import org.hibernate.annotations.GenericGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -14,6 +16,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -21,8 +24,6 @@ import java.util.UUID;
 public class Proposta {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", updatable = false, unique = true, nullable = false)
     private UUID id;
 
@@ -52,18 +53,26 @@ public class Proposta {
     @Enumerated(EnumType.STRING)
     private StatusProposta status;
 
+    @NotNull
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @Transient
+    private final Logger logger = LoggerFactory.getLogger(Proposta.class);
+
     @Deprecated
     public Proposta() {
     }
 
-    public Proposta(String documento, String email, String nome, String endereco, BigDecimal salario) {
-        this.id = UUID.randomUUID();
+    public Proposta(UUID id, String documento, String email, String nome, String endereco, BigDecimal salario) {
+        this.id = id;
         this.documento = documento;
         this.email = email;
         this.nome = nome;
         this.endereco = endereco;
         this.salario = salario;
         this.status = StatusProposta.AGUARDANDO_APROVACAO;
+        this.createdAt = LocalDateTime.now();
     }
 
     public UUID getId() {
@@ -88,11 +97,12 @@ public class Proposta {
             ResultadoAnalise solicitaAnaliseRequest = analiseFinanceiraClient.analisarProposta(solicitacaoAnalise);
 
             this.status = solicitaAnaliseRequest.getResultadoSolicitacao().getStatusTransacaoPagamento();
-
+            logger.info("Proposta 'id={}' ANALISADA.", proposta.getId());
         } catch (FeignException.FeignClientException.UnprocessableEntity unprocessableEntity){
             this.status = StatusProposta.NAO_ELEGIVEL;
+            logger.info("Proposta 'id={}' ANALISADA.", proposta.getId());
         } catch (FeignException e){
-            System.out.println("ERRO! Houve uma falha de comunicação com o sistema de análise financeira. Não foi possível realizar a análise da proposta.");
+            logger.error("Proposta 'id={}' NÂO ANALISADA. Motivo: falha de comunicação com a API de análise.", proposta.getId());
         }
     }
 
