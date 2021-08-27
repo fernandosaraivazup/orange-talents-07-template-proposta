@@ -86,8 +86,22 @@ public class Proposta {
         return documento;
     }
 
+    public String getEmail() { return email; }
+
     public String getNome() {
         return nome;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public BigDecimal getSalario() {
+        return salario;
+    }
+
+    public StatusProposta getStatus() {
+        return status;
     }
 
     public boolean possuiDocumentoCadastrado(PropostaRepository propostaRepository) {
@@ -109,8 +123,8 @@ public class Proposta {
         }
     }
 
-    public Cartao getCartao() {
+    /*public Cartao getCartao() {
         return cartao;
-    }
+    }*/
 
 }
