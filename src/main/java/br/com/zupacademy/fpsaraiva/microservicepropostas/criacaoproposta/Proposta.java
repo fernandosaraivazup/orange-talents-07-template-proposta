@@ -1,12 +1,12 @@
 package br.com.zupacademy.fpsaraiva.microservicepropostas.criacaoproposta;
 
+import br.com.zupacademy.fpsaraiva.microservicepropostas.associacartaoproposta.Cartao;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.compartilhado.validacoes.ValidDocument;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.consultadadossolicitante.AnaliseFinanceiraClient;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.consultadadossolicitante.ResultadoAnalise;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.consultadadossolicitante.SolicitacaoAnaliseRequest;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.consultadadossolicitante.StatusProposta;
 import feign.FeignException;
-import org.hibernate.annotations.GenericGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +57,9 @@ public class Proposta {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @OneToOne(mappedBy = "proposta")
+    private Cartao cartao;
+
     @Transient
     private final Logger logger = LoggerFactory.getLogger(Proposta.class);
 
@@ -104,6 +107,10 @@ public class Proposta {
         } catch (FeignException e){
             logger.error("Proposta 'id={}' NÂO ANALISADA. Motivo: falha de comunicação com a API de análise.", proposta.getId());
         }
+    }
+
+    public Cartao getCartao() {
+        return cartao;
     }
 
 }
