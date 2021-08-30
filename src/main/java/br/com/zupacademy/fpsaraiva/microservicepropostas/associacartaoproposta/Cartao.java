@@ -1,10 +1,12 @@
 package br.com.zupacademy.fpsaraiva.microservicepropostas.associacartaoproposta;
 
+import br.com.zupacademy.fpsaraiva.microservicepropostas.criabiometria.Biometria;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.criacaoproposta.Proposta;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_cartao")
@@ -29,6 +31,9 @@ public class Cartao {
     @NotNull
     @JoinColumn(name = "idProposta")
     private Proposta proposta;
+
+    @OneToMany(mappedBy = "cartao")
+    private List<Biometria> listaBiometria;
 
     @Deprecated
     public Cartao() {
