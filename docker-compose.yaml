@@ -87,6 +87,14 @@ services:
         ports:
             - 8082:80
 
+    #Proposals application
+    proposta:
+        image: 'fernandosaraivazup/proposta'
+        ports:
+            - 8080:8080
+        environment:
+            DB_URL: jdbc:postgresql://postgres-propostas:5432/propostas
+
     analise:
         image: 'zupacademy/analise-financeira'
         ports:
