@@ -4,12 +4,14 @@ import br.com.zupacademy.fpsaraiva.microservicepropostas.associacartaoproposta.C
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.util.Base64;
-
 
 public class NovaBiometriaRequest {
 
     @NotBlank
+    //TODO: validacao base64 entrada - refactor
+    //@Pattern(regexp = "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$")
     private String fingerprint;
 
     public NovaBiometriaRequest(@JsonProperty("fingerprint") String fingerprint) {
