@@ -1,11 +1,13 @@
 package br.com.zupacademy.fpsaraiva.microservicepropostas.associacartaoproposta;
 
+import br.com.zupacademy.fpsaraiva.microservicepropostas.bloqueiocartao.Bloqueio;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.criabiometria.Biometria;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.criacaoproposta.Proposta;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -27,6 +29,10 @@ public class Cartao {
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private Vencimento vencimento;
 
+    @NotNull
+    @Column(name = "is_blocked")
+    private boolean bloqueado;
+
     @OneToOne
     @NotNull
     @JoinColumn(name = "idProposta")
@@ -34,6 +40,9 @@ public class Cartao {
 
     @OneToMany(mappedBy = "cartao")
     private List<Biometria> listaBiometria;
+
+    @OneToMany(mappedBy = "cartao")
+    private List<Bloqueio> listaBloqueio = new ArrayList<>();
 
     @Deprecated
     public Cartao() {
@@ -46,6 +55,15 @@ public class Cartao {
         this.limite = limite;
         this.vencimento = vencimento;
         this.proposta = proposta;
+        this.bloqueado = false;
+    }
+
+    public boolean getBloqueado() {
+        return bloqueado;
+    }
+
+    public void bloqueiaCartao() {
+        this.bloqueado = true;
     }
 
 }
