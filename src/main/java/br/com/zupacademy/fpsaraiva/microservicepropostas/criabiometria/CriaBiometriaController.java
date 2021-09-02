@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.util.Base64;
 import java.util.Optional;
 
 @RestController
@@ -38,15 +39,21 @@ public class CriaBiometriaController {
             throw new ApiErroException(HttpStatus.NOT_FOUND, "Não foi encontrado nenhum cartão com o ID informado.");
         }
 
-        Biometria novaBiometria = novaBiometriaRequest.toModel(cartaoBuscado.get());
-        biometriaRepository.save(novaBiometria);
+        try {
+            Base64.getDecoder().decode(novaBiometriaRequest.getFingerprint());
+            Biometria novaBiometria = novaBiometriaRequest.toModel(cartaoBuscado.get());
+            biometriaRepository.save(novaBiometria);
 
-        logger.info("Biometria 'id={}' CRIADA com sucesso!", novaBiometria.getId());
+            logger.info("Biometria 'id={}' CRIADA com sucesso!", novaBiometria.getId());
 
-        return ResponseEntity.created(uriComponentsBuilder
-                        .path("/cartoes/{id}/biometrias")
-                        .buildAndExpand(novaBiometria.getId())
-                        .toUri()).build();
+            return ResponseEntity.created(uriComponentsBuilder
+                    .path("/cartoes/{id}/biometrias")
+                    .buildAndExpand(novaBiometria.getId())
+                    .toUri()).build();
+        } catch (Exception e) {
+            throw new ApiErroException(HttpStatus.BAD_REQUEST, "Houve um problema com o formato da biometria informado.");
+        }
+
     }
 
 }
