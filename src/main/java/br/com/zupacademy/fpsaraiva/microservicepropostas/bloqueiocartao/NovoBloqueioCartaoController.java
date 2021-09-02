@@ -28,8 +28,9 @@ public class NovoBloqueioCartaoController {
     private final Logger logger = LoggerFactory.getLogger(Proposta.class);
 
     @GetMapping("/cartoes/{id}/bloqueio")
-    public ResponseEntity<?> criaBloqueioCartao(@Valid @PathVariable(value = "id") String id, @RequestHeader("User-Agent") String userAgent,
-                                                     HttpServletRequest request, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<?> criaBloqueioCartao(@Valid @PathVariable(value = "id") String id, HttpServletRequest request,
+                                     UriComponentsBuilder uriComponentsBuilder) {
+        String userAgent = request.getHeader("User-Agent");
         String ipClient = request.getHeader("X-Forwarded-For");
 
         if(ipClient == null || ipClient.isBlank()) {
@@ -47,7 +48,9 @@ public class NovoBloqueioCartaoController {
         }
 
         cartao.bloqueiaCartao();
-        Bloqueio novoBloqueio = new Bloqueio(userAgent, ipClient, cartao);
+
+        NovoBloqueioRequest novoPedidoDeBloqueio = new NovoBloqueioRequest(userAgent, ipClient);
+        Bloqueio novoBloqueio = novoPedidoDeBloqueio.toModel(cartaoBuscado.get());
         bloqueioRepository.save(novoBloqueio);
 
         logger.info("Bloqueio 'id={}' realizado com sucesso!", novoBloqueio.getId());
