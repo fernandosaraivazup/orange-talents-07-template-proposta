@@ -1,8 +1,11 @@
 package br.com.zupacademy.fpsaraiva.microservicepropostas.associacartaoproposta;
 
-import br.com.zupacademy.fpsaraiva.microservicepropostas.bloqueiocartao.Bloqueio;
+import br.com.zupacademy.fpsaraiva.microservicepropostas.bloqueiocartao.*;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.criabiometria.Biometria;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.criacaoproposta.Proposta;
+import feign.FeignException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -30,8 +33,9 @@ public class Cartao {
     private Vencimento vencimento;
 
     @NotNull
-    @Column(name = "is_blocked")
-    private boolean bloqueado;
+    @Column(name = "card_status")
+    @Enumerated(EnumType.STRING)
+    private StatusCartao statusCartao;
 
     @OneToOne
     @NotNull
@@ -44,6 +48,9 @@ public class Cartao {
     @OneToMany(mappedBy = "cartao")
     private List<Bloqueio> listaBloqueio = new ArrayList<>();
 
+    @Transient
+    private final Logger logger = LoggerFactory.getLogger(Proposta.class);
+
     @Deprecated
     public Cartao() {
     }
@@ -55,15 +62,32 @@ public class Cartao {
         this.limite = limite;
         this.vencimento = vencimento;
         this.proposta = proposta;
-        this.bloqueado = false;
+        this.statusCartao = StatusCartao.ATIVO;
     }
 
-    public boolean getBloqueado() {
-        return bloqueado;
+    public String getId() {
+        return id;
     }
 
-    public void bloqueiaCartao() {
-        this.bloqueado = true;
+    public StatusCartao getBloqueado() {
+        return statusCartao;
+    }
+
+    public boolean notificaBloqueioASistemaExterno(NotificaBloqueioClient notificaBloqueioClient) {
+        try {
+            notificaBloqueioClient.notificarBloqueio(this.id, new NotificacaoBloqueioRequest("microsservice-propostas"));
+            this.statusCartao = StatusCartao.BLOQUEADO;
+            logger.info("Bloqueio do cartão realizado com SUCESSO.");
+            return true;
+        } catch (FeignException.FeignClientException.UnprocessableEntity unprocessableEntity) {
+            this.statusCartao = StatusCartao.BLOQUEADO;
+            logger.warn("Bloqueio do cartão retornou FALHA. MOTIVO: cartão já está bloqueado.");
+            return true;
+        } catch (FeignException e) {
+            this.statusCartao = StatusCartao.AGUARDANDO_BLOQUEIO;
+            logger.error("Bloqueio não realizado. Motivo: falha de comunicação com a API de cartões.");
+            return false;
+        }
     }
 
 }

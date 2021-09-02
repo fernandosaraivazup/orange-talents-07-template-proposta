@@ -27,6 +27,10 @@ public class Bloqueio {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime dataBloqueio;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private StatusBloqueio statusBloqueio;
+
     @ManyToOne(cascade = CascadeType.PERSIST)
     private Cartao cartao;
 
@@ -34,11 +38,12 @@ public class Bloqueio {
     public Bloqueio() {
     }
 
-    public Bloqueio(String userAgent, String ipClient, Cartao cartao) {
+    public Bloqueio(String userAgent, String ipClient, Cartao cartao, StatusBloqueio statusBloqueio) {
         this.id = id;
         this.userAgent = userAgent;
         this.ipClient = ipClient;
         this.cartao = cartao;
+        this.statusBloqueio = statusBloqueio;
         this.dataBloqueio = LocalDateTime.now();
     }
 

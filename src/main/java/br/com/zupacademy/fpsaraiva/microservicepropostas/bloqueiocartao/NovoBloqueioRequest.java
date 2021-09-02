@@ -17,8 +17,8 @@ public class NovoBloqueioRequest {
         this.ipClient = ipClient;
     }
 
-    public Bloqueio toModel(Cartao cartao) {
-        return new Bloqueio(userAgent, ipClient, cartao);
+    public Bloqueio toModel(Cartao cartao, StatusBloqueio statusBloqueio) {
+        return new Bloqueio(userAgent, ipClient, cartao, statusBloqueio);
     }
 
 }

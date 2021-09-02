@@ -25,6 +25,9 @@ public class NovoBloqueioCartaoController {
     @Autowired
     private BloqueioRepository bloqueioRepository;
 
+    @Autowired
+    private NotificaBloqueioClient notificaBloqueioClient;
+
     private final Logger logger = LoggerFactory.getLogger(Proposta.class);
 
     @GetMapping("/cartoes/{id}/bloqueio")
@@ -43,22 +46,24 @@ public class NovoBloqueioCartaoController {
         }
 
         Cartao cartao = cartaoBuscado.get();
-        if (cartao.getBloqueado()) {
+        if (cartao.getBloqueado().equals(StatusCartao.BLOQUEADO)) {
             throw new ApiErroException(HttpStatus.UNPROCESSABLE_ENTITY, "O cartão informado já está bloqueado.");
         }
 
-        cartao.bloqueiaCartao();
-
         NovoBloqueioRequest novoPedidoDeBloqueio = new NovoBloqueioRequest(userAgent, ipClient);
-        Bloqueio novoBloqueio = novoPedidoDeBloqueio.toModel(cartaoBuscado.get());
-        bloqueioRepository.save(novoBloqueio);
 
-        logger.info("Bloqueio 'id={}' realizado com sucesso!", novoBloqueio.getId());
-
-        return ResponseEntity.ok(uriComponentsBuilder
-                .path("/cartoes/{id}/bloqueio")
-                .buildAndExpand(novoBloqueio.getId())
-                .toUri());
+        if(cartao.notificaBloqueioASistemaExterno(notificaBloqueioClient)) {
+            Bloqueio novoBloqueio = novoPedidoDeBloqueio.toModel(cartaoBuscado.get(), StatusBloqueio.SUCESSO);
+            bloqueioRepository.save(novoBloqueio);
+            return ResponseEntity.ok(uriComponentsBuilder
+                    .path("/cartoes/{id}/bloqueio")
+                    .buildAndExpand(novoBloqueio.getId())
+                    .toUri());
+        } else {
+            Bloqueio novoBloqueio = novoPedidoDeBloqueio.toModel(cartaoBuscado.get(), StatusBloqueio.FALHA);
+            bloqueioRepository.save(novoBloqueio);
+            throw new ApiErroException(HttpStatus.SERVICE_UNAVAILABLE, "Não foi possivel realizar o bloqueio do cartão.");
+        }
     }
 
 }
