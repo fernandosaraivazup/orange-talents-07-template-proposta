@@ -1,5 +1,6 @@
 package br.com.zupacademy.fpsaraiva.microservicepropostas.associacartaoproposta;
 
+import br.com.zupacademy.fpsaraiva.microservicepropostas.avisoviagem.AvisoViagem;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.bloqueiocartao.*;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.criabiometria.Biometria;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.criacaoproposta.Proposta;
@@ -47,6 +48,9 @@ public class Cartao {
 
     @OneToMany(mappedBy = "cartao")
     private List<Bloqueio> listaBloqueio = new ArrayList<>();
+
+    @OneToMany(mappedBy = "cartao")
+    private List<AvisoViagem> avisoViagemList = new ArrayList<>();
 
     @Transient
     private final Logger logger = LoggerFactory.getLogger(Proposta.class);
