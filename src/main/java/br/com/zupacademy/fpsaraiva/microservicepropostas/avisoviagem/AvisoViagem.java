@@ -36,6 +36,10 @@ public class AvisoViagem {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime dataAviso;
 
+    @NotBlank
+    @Column(name = "travel_status", nullable = false)
+    private String statusAviso;
+
     @NotNull
     @ManyToOne(cascade = CascadeType.PERSIST)
     private Cartao cartao;
@@ -51,10 +55,15 @@ public class AvisoViagem {
         this.ipClient = ipClient;
         this.cartao = cartao;
         this.dataAviso = LocalDateTime.now();
+        this.statusAviso = "INEXISTENTE";
     }
 
     public Long getId() {
         return id;
+    }
+
+    public void registraStatus() {
+        this.statusAviso = "CRIADO";
     }
 
 }
