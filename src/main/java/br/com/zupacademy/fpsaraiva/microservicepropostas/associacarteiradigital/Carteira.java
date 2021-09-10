@@ -44,7 +44,7 @@ public class Carteira {
     public Carteira(String email, String carteira, Cartao cartao) {
         this.id = id;
         this.email = email;
-        this.carteira = carteira;
+        this.carteira = carteira.toUpperCase();
         this.dataAssociacaoCarteira = LocalDateTime.now();
         this.cartao = cartao;
         this.statusAssociacao = "INEXISTENTE";

@@ -44,11 +44,13 @@ public class AssociaCarteiraController {
             throw new ApiErroException(HttpStatus.UNPROCESSABLE_ENTITY, "O cartão informado está bloqueado.");
         }
 
-        if(!associacaoCarteiraRequest.getCarteira().equalsIgnoreCase("paypal")) {
+        Carteira novaCarteira = associacaoCarteiraRequest.toModel(cartao);
+
+        if(!associacaoCarteiraRequest.getCarteira().equalsIgnoreCase("paypal")
+                && !associacaoCarteiraRequest.getCarteira().equalsIgnoreCase("samsung pay")) {
             throw new ApiErroException(HttpStatus.BAD_REQUEST, "Erro: carteira selecionada indisponível.");
         }
 
-        Carteira novaCarteira = associacaoCarteiraRequest.toModel(cartao);
         try {
             AssociaCarteiraTemplate associacao = new AssociaCarteiraTemplate(associacaoCarteiraRequest.getEmail(), associacaoCarteiraRequest.getCarteira());
             ResultadoAssociaCarteira respostaAssociacao = associaCarteiraClient.associarCarteiraDigital(cartao.getId(), associacao);
