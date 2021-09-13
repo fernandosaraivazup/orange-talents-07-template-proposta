@@ -1,7 +1,7 @@
 package br.com.zupacademy.fpsaraiva.microservicepropostas.criacaoproposta;
 
 import br.com.zupacademy.fpsaraiva.microservicepropostas.associacartaoproposta.Cartao;
-import br.com.zupacademy.fpsaraiva.microservicepropostas.compartilhado.validacoes.ValidDocument;
+import br.com.zupacademy.fpsaraiva.microservicepropostas.configs.criptography.Criptografia;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.consultadadossolicitante.AnaliseFinanceiraClient;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.consultadadossolicitante.ResultadoAnalise;
 import br.com.zupacademy.fpsaraiva.microservicepropostas.consultadadossolicitante.SolicitacaoAnaliseRequest;
@@ -28,9 +28,12 @@ public class Proposta {
     private UUID id;
 
     @NotBlank
-    @ValidDocument
     @Column(name = "document", nullable = false)
     private String documento;
+
+    @NotBlank
+    @Column(name = "document_hash", nullable = false)
+    private String documentoHash;
 
     @NotBlank
     @Email
@@ -69,7 +72,8 @@ public class Proposta {
 
     public Proposta(UUID id, String documento, String email, String nome, String endereco, BigDecimal salario) {
         this.id = id;
-        this.documento = documento;
+        this.documento = Criptografia.encriptar(documento);
+        this.documentoHash = Criptografia.gerarHash(documento);
         this.email = email;
         this.nome = nome;
         this.endereco = endereco;
@@ -83,7 +87,7 @@ public class Proposta {
     }
 
     public String getDocumento() {
-        return documento;
+        return Criptografia.decriptar(documento);
     }
 
     public String getEmail() { return email; }
@@ -105,7 +109,7 @@ public class Proposta {
     }
 
     public boolean possuiDocumentoCadastrado(PropostaRepository propostaRepository) {
-        return propostaRepository.existsByDocumento(documento);
+        return propostaRepository.existsByDocumentoHash(documentoHash);
     }
 
     public void analisaRestricoesFinanceirasSolicitanteProposta(AnaliseFinanceiraClient analiseFinanceiraClient, Proposta proposta) {
@@ -122,9 +126,5 @@ public class Proposta {
             logger.error("Proposta 'id={}' NÂO ANALISADA. Motivo: falha de comunicação com a API de análise.", proposta.getId());
         }
     }
-
-    /*public Cartao getCartao() {
-        return cartao;
-    }*/
 
 }

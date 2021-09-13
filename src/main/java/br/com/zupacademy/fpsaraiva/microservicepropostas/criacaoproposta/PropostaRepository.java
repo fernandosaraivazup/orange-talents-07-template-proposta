@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface PropostaRepository extends CrudRepository<Proposta, UUID> {
-    boolean existsByDocumento(String documento);
+    boolean existsByDocumentoHash(String documento);
 
     List<Proposta> findAllByStatusAndCartao(StatusProposta status, Long cartaoId);
 }
