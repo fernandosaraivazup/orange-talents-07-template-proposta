@@ -27,7 +27,7 @@ public class ConsultaSistemaCartoesService {
     private final Logger logger = LoggerFactory.getLogger(ConsultaSistemaCartoesService.class);
 
     @Scheduled(initialDelay = 10000, fixedDelayString = "${periodicidade.consulta-numero-cartao}")
-    private void consultaNumeroCartaoPropostasElegiveis() {
+    public void consultaNumeroCartaoPropostasElegiveis() {
         logger.info("ASSOCIA CARTÕES: início da tarefa.");
 
         List<Proposta> propostasSemCartao = propostaRepository.findAllByStatusAndCartao(StatusProposta.ELEGIVEL, null);
